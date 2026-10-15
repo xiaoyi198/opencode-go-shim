@@ -1,0 +1,36 @@
+services:
+  go-shim:
+    image: node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+    container_name: opencode-go-shim
+    working_dir: /app
+    command: ["node", "server.mjs"]
+    user: "1000:1000"
+    env_file: .env
+    environment:
+      UPSTREAM_URL: https://opencode.ai/zen/go
+      NODE_ENV: production
+      PORT: "8080"
+    volumes:
+      - ./server.mjs:/app/server.mjs:ro
+    networks:
+      - newapi-net
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+networks:
+  newapi-net:
+    external: true

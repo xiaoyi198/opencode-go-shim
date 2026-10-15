@@ -1,0 +1,7 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Server-side secrets and runtime backups (created on the deployment host)
+.env
+channel-backup*.json
